@@ -2,6 +2,7 @@ https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index
 First you have to download docker compose file.
 urlc -LfO 'https://airflow.apache.org/docs/apache-airflow/2.9.2/docker-compose.yaml'
 You must change the volumes part if you want export / import files.
+You must also add to volumes the path for mlflow.
 Create airflow directory, leave the file there and cd to this directory.
 Then run this command on your terminal.
 docker compose up airflow-init

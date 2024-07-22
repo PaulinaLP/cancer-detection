@@ -59,7 +59,7 @@ x-airflow-common:
     AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
-    AIRFLOW__CORE__LOAD_EXAMPLES: 'true'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
     # yamllint disable rule:line-length
     # Use simple http server on scheduler for health checks
@@ -79,6 +79,8 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
     - ${AIRFLOW_PROJ_DIR:-.}/input:/opt/airflow/input
     - ${AIRFLOW_PROJ_DIR:-.}/output:/opt/airflow/output
+    - ${AIRFLOW_PROJ_DIR:-.}/mlflow:/opt/airflow/mlflow
+    - ${AIRFLOW_PROJ_DIR:-.}/mlruns:/opt/airflow/mlruns
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -236,8 +238,8 @@ services:
           echo "   https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html#before-you-begin"
           echo
         fi
-        mkdir -p /sources/logs /sources/dags /sources/plugins /sources/input /sources/output
-        chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins,input,output}
+        mkdir -p /sources/logs /sources/dags /sources/plugins /sources/input /sources/output /sources/mlruns /sources/mlflow
+        chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins,mlruns,mlflow}
         exec /entrypoint airflow version
     # yamllint enable rule:line-length
     environment:

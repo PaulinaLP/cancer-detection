@@ -10,7 +10,10 @@ import sys
 import pandas as pd
 import joblib
 import mlflow
-import mlflow.pyfunc
+
+
+EXPERIMENT_NAME = "cancer_detection"
+MLFLOW_TRACKING_URI=r"sqlite:////opt/airflow/mlflow/mlflow.db"
 
 
 default_args = {
@@ -34,29 +37,22 @@ def preprocess_train(ti):
 
 
 def log_preprocessor():
-    class PreprocessorWrapper(mlflow.pyfunc.PythonModel):
-        def __init__(self, preprocessor):
-            self.preprocessor = preprocessor
-
-        def predict(self, context, model_input):
-            return self.preprocessor.transform(model_input)
-
+    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+    mlflow.set_experiment(EXPERIMENT_NAME)
     preprocessor = joblib.load("/opt/airflow/output/preprocessor.pkl")
-
     with mlflow.start_run():
-        mlflow.pyfunc.log_model(            
-            python_model=PreprocessorWrapper(preprocessor),
-            artifacts={"/opt/airflow/output/preprocessor.pkl": "preprocessor/preprocessor.pkl"}
-        )
-
+       artifact_path = "preprocessor/preprocessor"
+       mlflow.log_artifact(local_path="/opt/airflow/output/preprocessor.pkl",artifact_path=artifact_path)
+   
 
 def save_csv_file(ti):
-    df_train = ti.xcom_pull(task_ids='preprocess_train')     
+    df_train = ti.xcom_pull(task_ids='preprocess_train')  
+    df_train = df_train.head(10)   
     df_train.to_csv (os.path.join("/opt/airflow/output/example.csv"))
 
 
 with DAG(
-    dag_id = 'training_pipeline',
+    dag_id = 'training_pipeline_5',
     description = 'Running a Python pipeline for training',
     default_args = default_args,
     start_date = days_ago(1),
@@ -66,7 +62,7 @@ with DAG(
     read_csv_file = PythonOperator(
         task_id='read_csv_file',
         python_callable= ingest_data,
-        op_kwargs={'path':  "/opt/airflow/input/"}
+        op_kwargs={'path': "/opt/airflow/input/"}
     )        
     prep_train = PythonOperator(
         task_id='prep_train',

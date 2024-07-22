@@ -1,6 +1,7 @@
-input/
+airflow/input/
+airflow/output/
 airflow/logs/
-airflow/mlfow.db
-airflow/dags/__pycache__/
-airflow/plugins/__pycache__/
+airflow/mlflow/
+airflow/mlruns/
+*.pyc
 
