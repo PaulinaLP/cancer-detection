@@ -29,12 +29,8 @@ def preprocess_train(ti):
     preprocessor = Preprocessor()
     preprocessor.fit(df_train)
     df_train=preprocessor.transform(df_train)    
-    return df_train, preprocessor
-  
-
-def dump_preprocessor(ti):
-    _ , preprocessor = ti.xcom_pull(task_ids='preprocess_train')      
     joblib.dump(preprocessor, "/opt/airflow/output/preprocessor.pkl")
+    return df_train  
 
 
 def log_preprocessor():
@@ -79,11 +75,7 @@ with DAG(
     preprocess_train = PythonOperator(
         task_id='preprocess_train',
         python_callable= preprocess_train
-        )     
-    dump_preprocessor = PythonOperator(
-        task_id='dump_preprocessor',
-        python_calable=dump_preprocessor
-        )
+        )  
     log_preprocessor = PythonOperator(
         task_id='log_preprocessor',
         python_callable=log_preprocessor        
@@ -94,5 +86,4 @@ with DAG(
     )   
 
     
-read_csv_file >> prep_train >> preprocess_train >> [dump_preprocessor, save_csv_file]
-dump_preprocessor >> log_preprocessor
+read_csv_file >> prep_train >> preprocess_train >> [log_preprocessor, save_csv_file]
