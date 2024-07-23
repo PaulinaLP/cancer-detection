@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 from airflow.utils.dates import days_ago
 from ingest import ingest_data
 from preprocess import prepare_train, Preprocessor
+from experiments import run_optimization
+from register import run_register_model
 import os
 import sys
 import pandas as pd
@@ -12,12 +14,15 @@ import joblib
 import mlflow
 
 
-EXPERIMENT_NAME = "cancer_detection"
+EXPERIMENT_NAME = "cancer_detection_lgbm"
+EXPERIMENT_NAME_SELECTED = "cancer_detection_lgbm_selected"
 MLFLOW_TRACKING_URI=r"sqlite:////opt/airflow/mlflow/mlflow.db"
+ARTIFACT_BUCKET= "/opt/airflow/mlruns"
 
 
 default_args = {
-   'owner': 'airflow'
+   'owner': 'airflow',
+   'execution_timeout': timedelta(minutes=5) 
 }
 
                  
@@ -30,29 +35,43 @@ def prep_train(ti):
 def preprocess_train(ti):
     df_train = ti.xcom_pull(task_ids='prep_train') 
     preprocessor = Preprocessor()
+    df_train = df_train.head(10000)
     preprocessor.fit(df_train)
     df_train=preprocessor.transform(df_train)    
     joblib.dump(preprocessor, "/opt/airflow/output/preprocessor.pkl")
     return df_train  
 
 
-def log_preprocessor():
-    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
-    mlflow.set_experiment(EXPERIMENT_NAME)
-    preprocessor = joblib.load("/opt/airflow/output/preprocessor.pkl")
-    with mlflow.start_run():
-       artifact_path = "preprocessor/preprocessor"
-       mlflow.log_artifact(local_path="/opt/airflow/output/preprocessor.pkl",artifact_path=artifact_path)
-   
+def run_experiments(ti):
+    df_train = ti.xcom_pull(task_ids='preprocess_train')
+    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)    
+    try:
+        mlflow.create_experiment(
+        name=EXPERIMENT_NAME,
+        artifact_location=ARTIFACT_BUCKET
+        )
+    except:
+        pass
+    mlflow.set_experiment(EXPERIMENT_NAME) 
+    run_optimization(df_train)  
 
-def save_csv_file(ti):
-    df_train = ti.xcom_pull(task_ids='preprocess_train')  
-    df_train = df_train.head(10)   
-    df_train.to_csv (os.path.join("/opt/airflow/output/example.csv"))
 
+def register_best_model(ti):
+    df_train = ti.xcom_pull(task_ids='preprocess_train')
+    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)    
+    try:
+        mlflow.create_experiment(
+        name=EXPERIMENT_NAME_SELECTED,
+        artifact_location=ARTIFACT_BUCKET
+        )
+    except:
+        pass
+    mlflow.set_experiment(EXPERIMENT_NAME_SELECTED) 
+    run_register_model(df_train,EXPERIMENT_NAME) 
+ 
 
 with DAG(
-    dag_id = 'training_pipeline_5',
+    dag_id = 'experiments_pipeline',
     description = 'Running a Python pipeline for training',
     default_args = default_args,
     start_date = days_ago(1),
@@ -72,14 +91,15 @@ with DAG(
         task_id='preprocess_train',
         python_callable= preprocess_train
         )  
-    log_preprocessor = PythonOperator(
-        task_id='log_preprocessor',
-        python_callable=log_preprocessor        
+    run_experiments = PythonOperator(
+        task_id='run_experiments',
+        python_callable= run_experiments        
     )
-    save_csv_file = PythonOperator(
-        task_id='save_csv_file',
-        python_callable=save_csv_file
-    )   
-
+    register_best_model = PythonOperator(
+        task_id='register_best_model',
+        python_callable= register_best_model  
+    )
     
-read_csv_file >> prep_train >> preprocess_train >> [log_preprocessor, save_csv_file]
+    
+    
+read_csv_file >> prep_train >> preprocess_train >> run_experiments >> register_best_model
