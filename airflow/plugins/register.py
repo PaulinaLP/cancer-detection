@@ -43,7 +43,7 @@ def run_register_model(df, hpo_experiment_name, top_n=1 ):
     best_run = client.search_runs(experiment_ids=experiment.experiment_id,
         run_view_type=ViewType.ACTIVE_ONLY,
         max_results=top_n,
-        order_by=(["metrics.partial_auc"])[0])
+        order_by=(["metrics.partial_auc DESC"]))[0]
     train_and_log_model(params=best_run.data.params, name=str('best_model'))
     # Register the best model
     mlflow.register_model(

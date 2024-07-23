@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from airflow.utils.dates import days_ago
 from ingest import ingest_data
 from preprocess import prepare_train, Preprocessor
+from experiments import spliting
 from experiments import run_optimization
 from register import run_register_model
 import os
@@ -42,18 +43,18 @@ def preprocess_train(ti):
     return df_train  
 
 
-def run_experiments(ti):
-    df_train = ti.xcom_pull(task_ids='preprocess_train')
-    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)    
-    try:
-        mlflow.create_experiment(
-        name=EXPERIMENT_NAME,
-        artifact_location=ARTIFACT_BUCKET
-        )
-    except:
-        pass
-    mlflow.set_experiment(EXPERIMENT_NAME) 
-    run_optimization(df_train)  
+# def run_experiments(ti):
+#     df_train = ti.xcom_pull(task_ids='preprocess_train')
+#     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)    
+#     try:
+#         mlflow.create_experiment(
+#         name=EXPERIMENT_NAME,
+#         artifact_location=ARTIFACT_BUCKET
+#         )
+#     except:
+#         pass
+#     mlflow.set_experiment(EXPERIMENT_NAME) 
+#     run_optimization(df_train)  
 
 
 def register_best_model(ti):
@@ -71,7 +72,7 @@ def register_best_model(ti):
  
 
 with DAG(
-    dag_id = 'experiments_pipeline',
+    dag_id = 'experiments_pipeline_2',
     description = 'Running a Python pipeline for training',
     default_args = default_args,
     start_date = days_ago(1),
@@ -91,15 +92,15 @@ with DAG(
         task_id='preprocess_train',
         python_callable= preprocess_train
         )  
-    run_experiments = PythonOperator(
-        task_id='run_experiments',
-        python_callable= run_experiments        
-    )
+    # run_experiments = PythonOperator(
+    #     task_id='run_experiments',
+    #     python_callable= run_experiments        
+    # )
     register_best_model = PythonOperator(
         task_id='register_best_model',
         python_callable= register_best_model  
     )
     
     
-    
-read_csv_file >> prep_train >> preprocess_train >> run_experiments >> register_best_model
+read_csv_file >> prep_train >> preprocess_train >> register_best_model    
+#read_csv_file >> prep_train >> preprocess_train >> run_experiments >> register_best_model

@@ -35,6 +35,7 @@ def spliting(df, n_splits =10):
         df.loc[val_idx, "fold"] = idx
     return df
 
+
 def run_optimization( df, n_splits =10, num_trials=10):
     df = spliting(df, n_splits=n_splits)       
     def objective(params):
