@@ -3,5 +3,5 @@ airflow/output/
 airflow/logs/
 airflow/mlflow/
 airflow/mlruns/
-*.pyc
+**/__pycache__/
 
