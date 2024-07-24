@@ -68,7 +68,7 @@ def register_best_model(ti):
     except:
         pass
     mlflow.set_experiment(EXPERIMENT_NAME_SELECTED) 
-    run_register_model(df_train,EXPERIMENT_NAME) 
+    run_register_model(df_train, EXPERIMENT_NAME, EXPERIMENT_NAME_SELECTED) 
  
 
 with DAG(

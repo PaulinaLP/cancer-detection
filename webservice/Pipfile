@@ -5,7 +5,11 @@ name = "pypi"
 
 [packages]
 scikit-learn = "==1.5.1"
-flask = "*"
+flask = "==3.0.3"
+gunicorn = "*"
+mlflow = "*"
+jsonify = "*"
+lightgbm = "*"
 
 [dev-packages]
 

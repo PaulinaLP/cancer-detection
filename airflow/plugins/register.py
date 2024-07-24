@@ -10,10 +10,34 @@ from mlflow.tracking import MlflowClient
 from lightgbm import LGBMClassifier
 from experiments import spliting, comp_score
 
-def train_and_log_model(df, params, name):
+
+def convert_params_to_float(params):
+    """
+    try to convert to int
+    then try to convert to float
+    leave as it is if it is not a number
+    """
+    for key, value in params.items():
+        try:
+            params[key] = int(value)
+        except (ValueError, TypeError):
+            try:
+                params[key] = float(value)
+            except (ValueError, TypeError):
+                pass 
+            pass  
+    return params
+
+
+def train_and_log_model(df, params, experiment_name):
     n_splits=10
     df = spliting(df, n_splits=n_splits)
-    with mlflow.start_run():     
+    print(params)
+    params=convert_params_to_float(params)
+    with mlflow.start_run() as run:   
+        run_id = run.info.run_id  
+        current_experiment=dict(mlflow.get_experiment_by_name(experiment_name))
+        current_experiment_id =current_experiment['experiment_id']        
         mlflow.log_params(params)
         lgb_scores = []
         lgb_models = []
@@ -32,11 +56,12 @@ def train_and_log_model(df, params, name):
         lgbm_score = np.mean(lgb_scores)
         mlflow.log_metric('partial_auc',lgbm_score)      
         joblib.dump(lgb_models, "/opt/airflow/output/models.pkl")
-        mlflow.log_artifact(local_path="/opt/airflow/outputmodels.pkl",artifact_path="models")
-        mlflow.log_artifact(local_path="/opt/airflow/output/preprocessor.pkl",artifact_path="preprocessor")
-        
+        mlflow.log_artifact(local_path="/opt/airflow/output/models.pkl",artifact_path=str(current_experiment_id)+"/model")       
+        mlflow.log_artifact(local_path="/opt/airflow/output/preprocessor.pkl",artifact_path=str(current_experiment_id)+"preprocessor")
+    return run_id   
 
-def run_register_model(df, hpo_experiment_name, top_n=1 ):
+
+def run_register_model(df, hpo_experiment_name, experiment_name, top_n=1 ):
     client = MlflowClient()    
     #Select the model 
     experiment = client.get_experiment_by_name(hpo_experiment_name)
@@ -44,9 +69,9 @@ def run_register_model(df, hpo_experiment_name, top_n=1 ):
         run_view_type=ViewType.ACTIVE_ONLY,
         max_results=top_n,
         order_by=(["metrics.partial_auc DESC"]))[0]
-    train_and_log_model(params=best_run.data.params, name=str('best_model'))
+    run_id=train_and_log_model(df, best_run.data.params,experiment_name)
     # Register the best model
     mlflow.register_model(
-        model_uri=f"runs:/{best_run.info.run_id}/model",
+        model_uri=f"runs:/{run_id}/model",
         name="best_model"
     )
