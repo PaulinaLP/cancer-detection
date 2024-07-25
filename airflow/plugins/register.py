@@ -35,9 +35,7 @@ def train_and_log_model(df, params, experiment_name):
     print(params)
     params=convert_params_to_float(params)
     with mlflow.start_run() as run:   
-        run_id = run.info.run_id  
-        current_experiment=dict(mlflow.get_experiment_by_name(experiment_name))
-        current_experiment_id =current_experiment['experiment_id']        
+        run_id = run.info.run_id           
         mlflow.log_params(params)
         lgb_scores = []
         lgb_models = []
@@ -56,8 +54,8 @@ def train_and_log_model(df, params, experiment_name):
         lgbm_score = np.mean(lgb_scores)
         mlflow.log_metric('partial_auc',lgbm_score)      
         joblib.dump(lgb_models, "/opt/airflow/output/models.pkl")
-        mlflow.log_artifact(local_path="/opt/airflow/output/models.pkl",artifact_path=str(current_experiment_id)+"/model")       
-        mlflow.log_artifact(local_path="/opt/airflow/output/preprocessor.pkl",artifact_path=str(current_experiment_id)+"preprocessor")
+        mlflow.log_artifact(local_path="/opt/airflow/output/models.pkl",artifact_path="model")       
+        mlflow.log_artifact(local_path="/opt/airflow/output/preprocessor.pkl",artifact_path="preprocessor")
     return run_id   
 
 
