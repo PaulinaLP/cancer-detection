@@ -18,7 +18,7 @@ import mlflow
 EXPERIMENT_NAME = "cancer_detection_lgbm"
 EXPERIMENT_NAME_SELECTED = "cancer_detection_lgbm_best"
 MLFLOW_TRACKING_URI=r"sqlite:////opt/airflow/mlflow/mlflow.db"
-ARTIFACT_BUCKET= "/opt/airflow/mlruns/5/"
+ARTIFACT_BUCKET= "/opt/airflow/mlruns/"
 
 
 default_args = {
