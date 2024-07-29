@@ -1,6 +1,7 @@
 from predict import preprocess
 import json
-import pandas
+import pandas as pd
+from pandas.testing import assert_frame_equal
 
 
 def test_preprocess():
@@ -9,5 +10,12 @@ def test_preprocess():
     actual_features=preprocess(features)
     with open('transformed_data.json', 'r') as file:
         expected_features_json= json.load(file)  
-    expected_features=pd.DataFrame([expected_features])  
-    assert actual_features.equals(expected_features) 
+    expected_features=pd.DataFrame([expected_features_json]) 
+    try:
+        assert_frame_equal(actual_features, expected_features)
+        print("Test passed: DataFrames are equal.")
+        assert True
+    except AssertionError as e:
+        print("Test failed: DataFrames are not equal.")
+        print(e)
+        assert False  # Fail the test explicitly
