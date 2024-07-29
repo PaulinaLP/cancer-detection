@@ -6,20 +6,22 @@ import numpy as np
 
 
 def preprocess(features):
-    preprocessor=joblib.load('model/preprocessor.pkl')
+    preprocessor = joblib.load('model/preprocessor.pkl')
     df = pd.DataFrame([features])
     df = preprocessor.transform(df)
     return df
- 
 
-def predict(features): 
+
+def predict(features):
     df = preprocess(features)
     test_cols = list(df.columns)
     for c in ["isic_id", "patient_id"]:
         if c in test_cols:
-            test_cols.remove(c)        
-    models=joblib.load('model/models.pkl')
-    lgb_preds =np.mean([model.predict_proba(df[test_cols])[:, 1] for model in models],axis=0)    
+            test_cols.remove(c)
+    models = joblib.load('model/models.pkl')
+    lgb_preds = np.mean(
+        [model.predict_proba(df[test_cols])[:, 1] for model in models], axis=0
+    )
     return float(lgb_preds)
 
 
@@ -31,9 +33,7 @@ def predict_endpoint():
     features = request.get_json()
     pred = predict(features)
 
-    result = {
-        'cancer_probability': pred        
-    }
+    result = {'cancer_probability': pred}
 
     return jsonify(result)
 

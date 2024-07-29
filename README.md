@@ -20,7 +20,7 @@ Primary Metric: Partial Area Under the ROC Curve (pAUC) above an 80% True Positi
 Purpose: Focuses on areas where TPR is above 80% to ensure high sensitivity in cancer detection.
 
 ## Mode:
-For this project the cloud is not used. The project runs locally.
+For this project cloud is not used. The project runs locally.
 
 
 # ML-OPS features

@@ -15,47 +15,64 @@ from mlflow.tracking import MlflowClient
 from mlflow.entities import ViewType
 
 
-def comp_score(solution: pd.DataFrame, submission: pd.DataFrame, row_id_column_name: str, min_tpr: float=0.80):
-    v_gt = abs(np.asarray(solution.values)-1)
+def comp_score(
+    solution: pd.DataFrame,
+    submission: pd.DataFrame,
+    row_id_column_name: str,
+    min_tpr: float = 0.80,
+):
+    v_gt = abs(np.asarray(solution.values) - 1)
     v_pred = np.array([1.0 - x for x in submission.values])
-    max_fpr = abs(1-min_tpr)
+    max_fpr = abs(1 - min_tpr)
     partial_auc_scaled = roc_auc_score(v_gt, v_pred, max_fpr=max_fpr)
     # change scale from [0.5, 1.0] to [0.5 * max_fpr**2, max_fpr]
     # https://math.stackexchange.com/questions/914823/shift-numbers-into-a-different-range
-    partial_auc = 0.5 * max_fpr**2 + (max_fpr - 0.5 * max_fpr**2) / (1.0 - 0.5) * (partial_auc_scaled - 0.5)
+    partial_auc = 0.5 * max_fpr**2 + (max_fpr - 0.5 * max_fpr**2) / (1.0 - 0.5) * (
+        partial_auc_scaled - 0.5
+    )
     return partial_auc
 
 
-def spliting(df, n_splits =10):
+def spliting(df, n_splits=10):
     n_splits = 10
     gkf = GroupKFold(n_splits=n_splits)
     df = df.sample(frac=1).reset_index(drop=True)
     df["fold"] = -1
-    for idx, (train_idx, val_idx) in enumerate(gkf.split(df, df["target"], groups=df["patient_id"])):
+    for idx, (train_idx, val_idx) in enumerate(
+        gkf.split(df, df["target"], groups=df["patient_id"])
+    ):
         df.loc[val_idx, "fold"] = idx
     return df
 
 
-def run_optimization( df, n_splits =10, num_trials=10):
-    df = spliting(df, n_splits=n_splits)       
+def run_optimization(df, n_splits=10, num_trials=10):
+    df = spliting(df, n_splits=n_splits)
+
     def objective(params):
-         with mlflow.start_run():  
+        with mlflow.start_run():
             mlflow.log_params(params)
             lgb_scores = []
             train_cols = list(df.columns)
             for c in ["fold", "target", "isic_id", "patient_id"]:
-                train_cols.remove(c)        
+                train_cols.remove(c)
             for fold in range(n_splits):
                 _df_train = df[df["fold"] != fold].reset_index(drop=True)
                 _df_valid = df[df["fold"] == fold].reset_index(drop=True)
                 model = LGBMClassifier(**params)
                 model.fit(_df_train[train_cols], _df_train["target"])
                 preds = model.predict_proba(_df_valid[train_cols])[:, 1]
-                score = comp_score(_df_valid[["target"]], pd.DataFrame(preds, columns=["prediction"]), "")
-                lgb_scores.append(score)        
+                score = comp_score(
+                    _df_valid[["target"]],
+                    pd.DataFrame(preds, columns=["prediction"]),
+                    "",
+                )
+                lgb_scores.append(score)
             lgbm_score = np.mean(lgb_scores)
-            mlflow.log_metric('partial_auc',lgbm_score)
-            return {'loss': -lgbm_score, 'status': STATUS_OK}  # Negative because we want to maximize the score
+            mlflow.log_metric('partial_auc', lgbm_score)
+            return {
+                'loss': -lgbm_score,
+                'status': STATUS_OK,
+            }  # Negative because we want to maximize the score
 
     search_space = {
         'num_leaves': scope.int(hp.quniform('num_leaves', 20, 50, 1)),
@@ -68,7 +85,7 @@ def run_optimization( df, n_splits =10, num_trials=10):
         'learning_rate': hp.loguniform('learning_rate', -5, -2),
         'n_estimators': scope.int(hp.quniform('n_estimators', 100, 1500, 1)),
         'objective': 'binary',
-        'random_state': 42
+        'random_state': 42,
     }
 
     rstate = np.random.default_rng(42)  # for reproducible results
@@ -79,7 +96,7 @@ def run_optimization( df, n_splits =10, num_trials=10):
         algo=tpe.suggest,
         max_evals=num_trials,
         trials=Trials(),
-        rstate=rstate
+        rstate=rstate,
     )
 
     print(f"Best parameters: {best}")
