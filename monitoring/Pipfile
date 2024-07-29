@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 evidently = "*"
+pandas = "*"
+ipykernel = "*"
 
 [dev-packages]
 

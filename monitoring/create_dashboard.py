@@ -1,10 +1,10 @@
 import pandas as pd
 from evidently import ColumnMapping
 from evidently.report import Report
-from evidently.metrics import ColumnDriftMetric, DatasetDriftMetric, DatasetMissingValuesMetric, ColumnQuantileMetric, ColumnSummaryMetric
+from evidently.metrics import ColumnDriftMetric, DatasetDriftMetric, DatasetMissingValuesMetric, ColumnQuantileMetric, ColumnSummaryMetric, ColumnDistributionMetric
 from evidently.metric_preset import DataDriftPreset, DataQualityPreset
 from evidently.ui.workspace import Workspace
-from evidently.ui.dashboards import DashboardPanelCounter, DashboardPanelDistribution, DashboardPanelPlot, CounterAgg, PanelValue, PlotType, ReportFilter
+from evidently.ui.dashboards import DashboardPanelCounter, DashboardPanelDistribution, DashboardPanelPlot, CounterAgg, PanelValue, PlotType, HistBarMode, ReportFilter
 from evidently.renderers.html_widgets import WidgetSize
 from datetime import datetime
 
@@ -22,16 +22,19 @@ column_mapping = ColumnMapping(
 )
 
 ws = Workspace("workspace")
-project = ws.create_project("Cancer Detection Dashboard 2")
+project = ws.create_project("Cancer Detection Dashboard")
 project.description = "This dashboard compares raw data from reference df and incoming data."
 project.save()
 
 regular_report = Report(
         metrics=[       
-            DataQualityPreset(), 
-            DataDriftPreset(),
-            ColumnQuantileMetric(column_name='tbp_lv_area_perim_ratio', quantile=0.2),
-            ColumnQuantileMetric(column_name='age_approx', quantile=0.5)
+            DatasetDriftMetric(),
+            DatasetMissingValuesMetric(),          
+            ColumnDriftMetric(column_name="age_approx", stattest="wasserstein"), 
+            ColumnDistributionMetric(column_name='anatom_site_general'),            
+            ColumnQuantileMetric(column_name='tbp_lv_area_perim_ratio', quantile=0.5),
+            ColumnQuantileMetric(column_name='age_approx', quantile=0.5),
+            ColumnSummaryMetric(column_name="clin_size_long_diam_mm")            
         ],
         timestamp=datetime.now()
     )
@@ -47,7 +50,7 @@ project.dashboard.add_panel(
     DashboardPanelCounter(
         filter=ReportFilter(metadata_values={}, tag_values=[]),
         agg=CounterAgg.NONE,
-        title="Cancer Detection data dashboard 2"
+        title="Cancer Detection data dashboard"
     )
 )
 
@@ -67,16 +70,35 @@ project.dashboard.add_panel(
     ),
 )
 
-p.dashboard.add_panel(
-        DashboardPanelDistribution(
-            title="Column Distribution: current",
+project.dashboard.add_panel(
+        DashboardPanelCounter(
+            title="Share of Drifted Features",
             filter=ReportFilter(metadata_values={}, tag_values=[]),
             value=PanelValue(
-                field_path="ColumnDistributionMetric.fields.current",
-                metric_id="ColumnDistributionMetric",
-                metric_args={"column_name.name": "age_approx"},
+                metric_id="DatasetDriftMetric",
+                field_path="share_of_drifted_columns",
+                legend="share",
             ),
-            barmode = HistBarMode.STACK
+            text="share",
+            agg=CounterAgg.LAST,
+            size=1,
+        )
+    )
+
+project.dashboard.add_panel(
+        DashboardPanelPlot(
+            title="Age: Wasserstein drift distance",
+            filter=ReportFilter(metadata_values={}, tag_values=[]),
+            values=[
+                PanelValue(
+                    metric_id="ColumnDriftMetric",
+                    metric_args={"column_name.name": "age_approx"},
+                    field_path=ColumnDriftMetric.fields.drift_score,
+                    legend="Drift Score",
+                ),
+            ],
+            plot_type=PlotType.BAR,
+            size=1,
         )
     )
 

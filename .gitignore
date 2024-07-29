@@ -1,9 +1,9 @@
-airflow/input/
-airflow/output/
+#airflow/input/
+#airflow/output/
 airflow/logs/
 #airflow/mlflow/
 airflow/mlruns/
 **/__pycache__/
-monitoring/input/
-monitoring/workspace/
+#monitoring/input/
+#monitoring/workspace/
 
