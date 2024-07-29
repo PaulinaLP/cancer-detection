@@ -1,28 +1,29 @@
+from datetime import datetime
+
 import pandas as pd
 from evidently import ColumnMapping
 from evidently.report import Report
 from evidently.metrics import (
     ColumnDriftMetric,
     DatasetDriftMetric,
-    DatasetMissingValuesMetric,
-    ColumnQuantileMetric,
     ColumnSummaryMetric,
+    ColumnQuantileMetric,
     ColumnDistributionMetric,
+    DatasetMissingValuesMetric
 )
-from evidently.metric_preset import DataDriftPreset, DataQualityPreset
 from evidently.ui.workspace import Workspace
+from evidently.metric_preset import DataDriftPreset, DataQualityPreset
 from evidently.ui.dashboards import (
-    DashboardPanelCounter,
-    DashboardPanelDistribution,
-    DashboardPanelPlot,
+    PlotType,
     CounterAgg,
     PanelValue,
-    PlotType,
     HistBarMode,
     ReportFilter,
+    DashboardPanelPlot,
+    DashboardPanelCounter,
+    DashboardPanelDistribution
 )
 from evidently.renderers.html_widgets import WidgetSize
-from datetime import datetime
 
 
 def add_new_report(batch_path, project_id, report_date):

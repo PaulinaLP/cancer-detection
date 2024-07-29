@@ -1,18 +1,17 @@
-import pandas as pd
-import numpy as np
-from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import GroupKFold
-from lightgbm import LGBMClassifier
 import os
 import pickle
-import mlflow
+
 import numpy as np
-from hyperopt import STATUS_OK, Trials, fmin, hp, tpe
+import mlflow
+import pandas as pd
+from hyperopt import STATUS_OK, Trials, hp, tpe, fmin
+from lightgbm import LGBMClassifier
 from hyperopt.pyll import scope
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error
-from mlflow.tracking import MlflowClient
 from mlflow.entities import ViewType
+from mlflow.tracking import MlflowClient
+from sklearn.metrics import roc_auc_score, mean_squared_error
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import GroupKFold
 
 
 def comp_score(

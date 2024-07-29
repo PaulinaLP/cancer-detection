@@ -1,8 +1,9 @@
 import os
+
+import numpy as np
 import joblib
 import pandas as pd
-from flask import Flask, request, jsonify
-import numpy as np
+from flask import Flask, jsonify, request
 
 
 def preprocess(features):

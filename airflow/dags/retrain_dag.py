@@ -1,19 +1,18 @@
-from airflow import DAG
-from airflow.operators.python import PythonOperator
-from datetime import datetime
-from datetime import datetime, timedelta
-from airflow.utils.dates import days_ago
-from ingest import ingest_data
-from preprocess import prepare_train, Preprocessor
-from experiments import spliting
-from experiments import run_optimization
-from register import run_register_model
 import os
 import sys
-import pandas as pd
+from datetime import datetime, timedelta
+
 import joblib
 import mlflow
+import pandas as pd
+from ingest import ingest_data
+from register import run_register_model
+from preprocess import Preprocessor, prepare_train
+from experiments import spliting, run_optimization
+from airflow.utils.dates import days_ago
+from airflow.operators.python import PythonOperator
 
+from airflow import DAG
 
 EXPERIMENT_NAME = "cancer_detection_lgbm"
 EXPERIMENT_NAME_SELECTED = "cancer_detection_lgbm_best"

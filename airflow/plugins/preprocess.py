@@ -1,10 +1,8 @@
-import pandas as pd
 import numpy as np
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.preprocessing import StandardScaler
+import pandas as pd
 from sklearn.metrics import roc_auc_score
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.model_selection import GroupKFold
-
 
 # creating a variable with columns that appear both in test and train
 test_and_target = [
