@@ -4,15 +4,17 @@ import pytest
 from predict import app
 
 
+# pylint: disable=redefined-outer-name
 @pytest.fixture
 def client():
     with app.test_client() as client:
         yield client
 
 
+# pylint: disable=redefined-outer-name
 def test_predict(client):
 
-    with open('example.json', 'r') as file:
+    with open('example.json', 'r', encoding='utf-8') as file:
         sample_input = json.load(file)
 
     # Send a POST request to the /predict endpoint

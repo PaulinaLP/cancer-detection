@@ -1,14 +1,10 @@
-import os
-import sys
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import joblib
 import mlflow
-import pandas as pd
 from ingest import ingest_data
 from register import run_register_model
 from preprocess import Preprocessor, prepare_train
-from experiments import spliting, run_optimization
 from airflow.utils.dates import days_ago
 from airflow.operators.python import PythonOperator
 
@@ -73,5 +69,5 @@ with DAG(
         task_id='register_best_model', python_callable=register_best_model
     )
 
-
+# pylint: disable=pointless-statement
 read_csv_file >> prep_train >> preprocess_train >> register_best_model

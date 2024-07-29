@@ -156,7 +156,7 @@ def feature_engineering_process(df, num_columns, medians):
     # Handle numerical columns missing values
     for nc in num_columns:
         df[nc] = df[nc].fillna(medians.get(nc, 0))
-    # Replacement for 0 to na to avoid incorrect calulation in feature engineering as 0 really mean missing value
+    # Replacement for 0 to na to avoid incorrect calulation
     replace_cols = [
         'tbp_lv_color_std_mean',
         'tbp_lv_norm_color',

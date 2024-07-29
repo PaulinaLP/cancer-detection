@@ -1,13 +1,10 @@
-import os
-import pickle
-
 import numpy as np
 import joblib
-import mlflow
 import pandas as pd
-import mlflow.sklearn
 from lightgbm import LGBMClassifier
 from experiments import spliting, comp_score
+import mlflow
+import mlflow.sklearn
 from mlflow.entities import ViewType
 from mlflow.tracking import MlflowClient
 
@@ -26,11 +23,11 @@ def convert_params_to_float(params):
                 params[key] = float(value)
             except (ValueError, TypeError):
                 pass
-            pass
     return params
 
 
-def train_and_log_model(df, params, experiment_name):
+# pylint: disable=too-many-locals
+def train_and_log_model(df, params):
     n_splits = 10
     df = spliting(df, n_splits=n_splits)
     print(params)
@@ -67,7 +64,7 @@ def train_and_log_model(df, params, experiment_name):
     return run_id
 
 
-def run_register_model(df, hpo_experiment_name, experiment_name, top_n=1):
+def run_register_model(df, hpo_experiment_name, top_n=1):
     client = MlflowClient()
     # Select the model
     experiment = client.get_experiment_by_name(hpo_experiment_name)
@@ -77,6 +74,6 @@ def run_register_model(df, hpo_experiment_name, experiment_name, top_n=1):
         max_results=top_n,
         order_by=(["metrics.partial_auc DESC"]),
     )[0]
-    run_id = train_and_log_model(df, best_run.data.params, experiment_name)
+    run_id = train_and_log_model(df, best_run.data.params)
     # Register the best model
     mlflow.register_model(model_uri=f"runs:/{run_id}/model", name="best_model")

@@ -9,7 +9,7 @@ from evidently.metrics import (
     ColumnSummaryMetric,
     ColumnQuantileMetric,
     ColumnDistributionMetric,
-    DatasetMissingValuesMetric
+    DatasetMissingValuesMetric,
 )
 from evidently.ui.workspace import Workspace
 from evidently.metric_preset import DataDriftPreset, DataQualityPreset
@@ -21,7 +21,7 @@ from evidently.ui.dashboards import (
     ReportFilter,
     DashboardPanelPlot,
     DashboardPanelCounter,
-    DashboardPanelDistribution
+    DashboardPanelDistribution,
 )
 from evidently.renderers.html_widgets import WidgetSize
 

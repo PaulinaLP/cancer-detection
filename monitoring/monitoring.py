@@ -9,21 +9,9 @@ from evidently.metrics import (
     ColumnSummaryMetric,
     ColumnQuantileMetric,
     ColumnDistributionMetric,
-    DatasetMissingValuesMetric
+    DatasetMissingValuesMetric,
 )
 from evidently.ui.workspace import Workspace
-from evidently.metric_preset import DataDriftPreset, DataQualityPreset
-from evidently.ui.dashboards import (
-    PlotType,
-    CounterAgg,
-    PanelValue,
-    HistBarMode,
-    ReportFilter,
-    DashboardPanelPlot,
-    DashboardPanelCounter,
-    DashboardPanelDistribution
-)
-from evidently.renderers.html_widgets import WidgetSize
 
 
 def add_new_report(batch_path, project_id, report_date):
@@ -52,6 +40,12 @@ def add_new_report(batch_path, project_id, report_date):
             ColumnSummaryMetric(column_name="clin_size_long_diam_mm"),
         ],
         timestamp=report_date,
+    )
+
+    regular_report.run(
+        reference_data=reference_df,
+        current_data=comparision_df,
+        column_mapping=column_mapping,
     )
 
     ws.add_report(project_id, regular_report)

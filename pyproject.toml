@@ -7,7 +7,13 @@ disable = [
     "missing-module-docstring",
     "invalid-name",
     "too-few-public-methods",
-    "similar-lines-in-2-files"
+    "duplicate-code",
+    "import-error",
+    "c-extension-no-member",
+    "bare-except",
+    "no-name-in-module",
+    "unused-import",
+    "no-member"
 ]
 
 [tool.black]
@@ -17,4 +23,3 @@ skip-string-normalization = true
 
 [tool.isort]
 multi_line_output = 3
-length_sort = true

@@ -3,7 +3,7 @@ import json
 import pandas as pd
 import requests
 
-with open('example.json', 'r') as file:
+with open('example.json', 'r', encoding='utf-8') as file:
     features = json.load(file)
 
 

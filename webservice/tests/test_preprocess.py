@@ -6,10 +6,10 @@ from pandas.testing import assert_frame_equal
 
 
 def test_preprocess():
-    with open('example.json', 'r') as file:
+    with open('example.json', 'r', encoding='utf-8') as file:
         features = json.load(file)
     actual_features = preprocess(features)
-    with open('transformed_data.json', 'r') as file:
+    with open('transformed_data.json', 'r', encoding='utf-8') as file:
         expected_features_json = json.load(file)
     expected_features = pd.DataFrame([expected_features_json])
     try:
