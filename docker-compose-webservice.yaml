@@ -1,0 +1,10 @@
+version: "1"
+
+services:
+  webservice:
+    build:
+      context: webservice
+      dockerfile: Dockerfile
+    ports:
+      - "9696:9696"
+    restart: always
