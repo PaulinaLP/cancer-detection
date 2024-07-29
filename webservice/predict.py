@@ -5,17 +5,20 @@ from flask import Flask, request, jsonify
 import numpy as np
 
 
-models=joblib.load('model/models.pkl')
-preprocessor=joblib.load('model/preprocessor.pkl')
-
- 
-def predict(features):    
+def preprocess(features):
+    preprocessor=joblib.load('model/preprocessor.pkl')
     df = pd.DataFrame([features])
     df = preprocessor.transform(df)
+    return df
+ 
+
+def predict(features): 
+    df = preprocess(features)
     test_cols = list(df.columns)
     for c in ["isic_id", "patient_id"]:
         if c in test_cols:
             test_cols.remove(c)        
+    models=joblib.load('model/models.pkl')
     lgb_preds =np.mean([model.predict_proba(df[test_cols])[:, 1] for model in models],axis=0)    
     return float(lgb_preds)
 

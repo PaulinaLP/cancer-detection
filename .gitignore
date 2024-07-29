@@ -6,4 +6,4 @@ airflow/mlruns/
 **/__pycache__/
 #monitoring/input/
 #monitoring/workspace/
-
+.vscode/

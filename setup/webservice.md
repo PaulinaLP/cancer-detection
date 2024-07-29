@@ -15,3 +15,8 @@ execute docker build -t my-predict-app .
 execute docker run -d -p 9696:9696 my-predict-app
 
 you can test it again
+
+there are also some tests prepared in the folder tests:
+one unit test to test preprocessing
+one integration test to test the service
+you can run them using pytest, it is specified in pipfile only for dev
