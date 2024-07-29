@@ -1,6 +1,6 @@
 setup:
 	pipenv install --dev
-	pre-commit install
+	pipenv run pre-commit install
 
 quality_checks:
 	isort .
