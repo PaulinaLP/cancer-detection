@@ -2,11 +2,11 @@ from datetime import timedelta
 
 import joblib
 import mlflow
-from ingest import ingest_data
-from register import run_register_model
-from preprocess import Preprocessor, prepare_train
-from airflow.utils.dates import days_ago
 from airflow.operators.python import PythonOperator
+from airflow.utils.dates import days_ago
+from ingest import ingest_data
+from preprocess import Preprocessor, prepare_train
+from register import run_register_model
 
 from airflow import DAG
 

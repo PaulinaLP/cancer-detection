@@ -14,7 +14,9 @@ disable = [
     "bare-except",
     "no-name-in-module",
     "unused-import",
-    "no-member"
+    "no-member",
+    "wrong-import-order",
+    "ungrouped-imports"
 ]
 
 [tool.black]

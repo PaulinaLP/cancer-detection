@@ -1,10 +1,10 @@
-import numpy as np
 import joblib
-import pandas as pd
-from lightgbm import LGBMClassifier
-from experiments import spliting, comp_score
 import mlflow
 import mlflow.sklearn
+import numpy as np
+import pandas as pd
+from experiments import comp_score, spliting
+from lightgbm import LGBMClassifier
 from mlflow.entities import ViewType
 from mlflow.tracking import MlflowClient
 

@@ -8,10 +8,13 @@ quality_checks:
 	pylint --recursive=y .
 
 unit_tests:
-	pytest webservice/tests/test_preprocess.py
+	cd webservice && pytest tests/test_preprocess.py
 
 integration_tests:
-	pytest webservice/tests/test_integration.py
+	cd webservice && pytest tests/test_integration.py
 
 build: quality_checks unit_tests integration_tests
-	docker-compose -f docker-compose-webservice.yml up --build -d
+	docker-compose -f docker-compose-webservice.yaml up --build -d
+
+
+

@@ -1,7 +1,7 @@
-import numpy as np
 import mlflow
+import numpy as np
 import pandas as pd
-from hyperopt import STATUS_OK, Trials, hp, tpe, fmin
+from hyperopt import STATUS_OK, Trials, fmin, hp, tpe
 from hyperopt.pyll import scope
 from lightgbm import LGBMClassifier
 from sklearn.metrics import roc_auc_score

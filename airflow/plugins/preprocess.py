@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-
 # creating a variable with columns that appear both in test and train
 test_and_target = [
     "target",

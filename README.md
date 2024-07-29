@@ -8,7 +8,7 @@ Develop binary classification algorithms to identify malignant skin lesions from
 
 ## Data:
 The model will leverage only the metadata of the photos to make predictions.
-Some sample of the data are placed in airflow/input. 
+Some sample of the data are placed in airflow/input.
 The complete data can be downloaded from: https://www.kaggle.com/competitions/isic-2024-challenge/data
 
 ## Model:

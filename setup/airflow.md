@@ -20,9 +20,9 @@ docker rm $(docker ps -a -q)
 
 If you change Dockerfile you must do:
 docker compose down
-And then again: 
+And then again:
 docker compose build
-and 
+and
 docker compose up
 
 The webserver works on port 8080.
