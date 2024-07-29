@@ -44,7 +44,8 @@ The test are run with pytest. They can be found in webservice/tests.
 ## Lintering and formating.
 Pylint, black and isort are used for code formatting and linting.
 
-
+### How to run the application?
+You must run make setup or make setup --always-make 
 
 ### Airflow functioning:
 Apache Airflow is an open-source platform used to programmatically author, schedule, and monitor workflows. It allows users to define workflows as Directed Acyclic Graphs (DAGs), which represent a sequence of tasks and their dependencies.
